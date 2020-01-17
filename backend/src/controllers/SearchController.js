@@ -1,16 +1,10 @@
-const User = require('../models/User');
-const parseStringAsArray = require('../utils/parseStringAsArray');
+const Item = require('../models/Item');
 
 module.exports = {
   async index(req, res) {
-    const { latitude, longitude, items } = req.query;
+    const { latitude, longitude, item_name } = req.query;
 
-    const itemsArray = parseStringAsArray(items);
-
-    const users = await User.find({
-      items: {
-        $in: itemsArray,
-      },
+    const items = await Item.find({
       location: {
         $near: {
           $geometry: {
@@ -20,8 +14,10 @@ module.exports = {
           $maxDistance: 10000,
         },
       },
+    }).where({
+      item_name,
     });
 
-    return res.json(users);
+    return res.json(items);
   },
 };
